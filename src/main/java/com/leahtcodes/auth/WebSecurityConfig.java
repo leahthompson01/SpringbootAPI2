@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,7 +19,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import java.io.IOException;
 
-
+@Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig  {
@@ -33,29 +34,12 @@ public class WebSecurityConfig  {
     }
     @Bean public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
-        http.authorizeHttpRequests((authorize) -> authorize
+        http.csrf().disable().authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/", "/login.html", "/error", "/webjars/**", "/api/**").permitAll()
                 .anyRequest().authenticated()
-        ).oauth2Login()
-                .loginPage("/login").permitAll()
-                .userInfoEndpoint()
-                .userService(oauthUserService)
-                .and()
-                .successHandler(new AuthenticationSuccessHandler() {
+        ).oauth2Login(Customizer.withDefaults());
 
-                    @Override
-                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                                        Authentication authentication) throws IOException, ServletException {
 
-                        CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
-
-                        UserService userService = new UserService();
-
-                        userService.processOAuthPostLogin(oauthUser.getEmail());
-
-                        response.sendRedirect("/api/user");
-                    }
-                });
 
 
         return http.build();

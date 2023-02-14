@@ -23,7 +23,7 @@ public class Coffee implements Serializable {
     )
     private Integer Id;
 
-    private Integer user_id;
+    private String user_id;
     @NotEmpty(message="Name may not be empty")
     private String coffeeName;
     @NotEmpty(message="Brand may not be empty")
@@ -31,7 +31,7 @@ public class Coffee implements Serializable {
     @NotNull(message="Price may not be null") private String roast;
     private Integer coffeePrice;
 
-    public Coffee(String name, String brand, String roast, Integer price, Integer user_id){
+    public Coffee(String name, String brand, String roast, Integer price, String user_id){
         this.coffeeName = name;
         this.brand = brand;
         this.roast = roast;

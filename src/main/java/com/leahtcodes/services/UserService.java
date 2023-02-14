@@ -17,8 +17,6 @@ public class UserService {
         if(existUser == null){
             Userss newUser  = new Userss();
             newUser.setUsername(username);
-            newUser.setProvider(Provider.GOOGLE);
-            newUser.setEnabled(true);
 
             repo.save(newUser);
         }
