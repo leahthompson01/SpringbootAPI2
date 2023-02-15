@@ -2,21 +2,29 @@ package com.leahtcodes.Controllers;
 
 import com.leahtcodes.Models.Coffee;
 import com.leahtcodes.Repositories.CoffeeRepository;
+import com.leahtcodes.Repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/coffees")
 public class CoffeeController {
 
-    private CoffeeRepository coffeeRepository;
+    private final CoffeeRepository coffeeRepository;
 
-    public CoffeeController(CoffeeRepository coffeeRepository){
+    private OAuth2AuthorizedClientService authorizedClientService;
+    public CoffeeController(CoffeeRepository coffeeRepository, OAuth2AuthorizedClientService authorizedClientService){
         this.coffeeRepository = coffeeRepository;
+        this.authorizedClientService = authorizedClientService;
     }
     @GetMapping("/add")
     public List<Coffee> getCoffees(){
@@ -42,13 +50,23 @@ public class CoffeeController {
             Integer coffeePrice,
             String roast
     ){}
+
     @PostMapping("/add")
-    public String addCoffee(@RequestBody NewCoffeeRequest request){
+    public String addCoffee(@RequestBody NewCoffeeRequest request, OAuth2AuthenticationToken authentication){
+        OAuth2AuthorizedClient client = authorizedClientService
+                .loadAuthorizedClient(
+                        authentication.getAuthorizedClientRegistrationId(),
+                        authentication.getName());
+        System.out.println(authentication.getPrincipal().getAttributes());
+        //...
+        Map<String, Object> attributes = authentication.getPrincipal().getAttributes();
+        String id = (String) attributes.get("sub");
         Coffee newCoffee = new Coffee();
         newCoffee.setCoffeeName(request.coffeeName().toLowerCase());
         newCoffee.setBrand(request.brand().toLowerCase());
         newCoffee.setCoffeePrice(request.coffeePrice());
         newCoffee.setRoast(request.roast().toLowerCase());
+        newCoffee.setUser_id(id);
         System.out.println(newCoffee);
         coffeeRepository.save(newCoffee);
         System.out.println("New item added to db");

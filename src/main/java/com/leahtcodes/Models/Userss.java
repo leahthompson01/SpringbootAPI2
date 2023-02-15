@@ -19,20 +19,21 @@ public class Userss implements Serializable {
             generator = "user_id_sequence"
     )
     private Integer Id;
-    @Enumerated(EnumType.STRING)
-    private Provider provider;
 
+    @Column(unique=true)
+    private String email;
     private String username;
-    private boolean enabled;
+    private String googleId;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", referencedColumnName = "Id")
+    @JoinColumn(name = "user_id", referencedColumnName = "googleId")
     private List<Coffee> coffees;
 
-    public Userss(String name, Provider provider, List<Coffee> coffees){
+    public Userss(String name, String email, List<Coffee> coffees, String googleId){
         this.username = name;
-        this.provider = provider;
+        this.email = email;
         this.coffees = coffees;
+        this.googleId = googleId;
     }
 
 
